@@ -1,23 +1,24 @@
 export default function VistaGlobal({ estancias, estadoGlobal }) {
 
   let puntos = [];
-  Object.entries(estancias).forEach(([key, e]) => {
+  Object.values(estancias).forEach(e => {
     e.puntos.forEach(([el, ref]) => puntos.push([e.nombre, el, ref]));
   });
 
   return (
     <>
-      <h2>🌐 VISTA GLOBAL DE TODA LA OBRA</h2>
+      <h2 className="estancia-title">🌐 TODAS LAS ESTANCIAS</h2>
+
       <table>
         <thead>
           <tr>
             <th>Estancia</th>
             <th>Elemento</th>
             <th>Ref</th>
-            <th>🧰</th>
-            <th>🔌</th>
-            <th>🎛</th>
-            <th>💻</th>
+            <th className="col-tech">🧰<span>Tubo</span></th>
+            <th className="col-tech">🔌<span>Cable</span></th>
+            <th className="col-tech">🎛<span>Mecanismo</span></th>
+            <th className="col-tech">💻<span>Programación</span></th>
           </tr>
         </thead>
         <tbody>
@@ -25,7 +26,7 @@ export default function VistaGlobal({ estancias, estadoGlobal }) {
             const p = estadoGlobal[ref] || {};
             return (
               <tr key={est + ref}>
-                <td>{est}</td>
+                <td><strong>{est}</strong></td>
                 <td>{el}</td>
                 <td>{ref}</td>
                 {["tubo","cable","mecanismo","prog"].map(c => (

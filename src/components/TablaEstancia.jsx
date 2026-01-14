@@ -29,7 +29,7 @@ export default function TablaEstancia({ estancia, estanciaKey, estancias, setEst
 
   return (
     <>
-      <h2>{estancia.nombre}</h2>
+      <h2 className="estancia-title">📍 {estancia.nombre}</h2>
 
       <div className="add-bar">
         <input placeholder="Elemento" value={nuevo.el}
@@ -42,8 +42,13 @@ export default function TablaEstancia({ estancia, estanciaKey, estancias, setEst
       <table>
         <thead>
           <tr>
-            <th>Elemento</th><th>Ref</th>
-            <th>🧰</th><th>🔌</th><th>🎛</th><th>💻</th><th></th>
+            <th>Elemento</th>
+            <th>Ref</th>
+            <th className="col-tech">🧰<span>Tubo</span></th>
+            <th className="col-tech">🔌<span>Cable</span></th>
+            <th className="col-tech">🎛<span>Mecanismo</span></th>
+            <th className="col-tech">💻<span>Programación</span></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>

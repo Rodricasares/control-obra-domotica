@@ -78,3 +78,14 @@ tbody tr:nth-child(even){background:#f9fafb;}
 
 .ok {background:#22c55e;color:white;border:none;border-radius:8px;padding:4px 10px;}
 .pendiente {background:#e5e7eb;border:none;border-radius:8px;padding:4px 10px;}
+
+.col-tech {
+  font-size: 0.85rem;
+  line-height: 1.1;
+}
+
+.col-tech span {
+  display:block;
+  font-size:0.7rem;
+  opacity:.7;
+}
