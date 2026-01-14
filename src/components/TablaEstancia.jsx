@@ -44,26 +44,33 @@ export default function TablaEstancia({ estancia, estanciaKey, estancias, setEst
           <tr>
             <th>Elemento</th>
             <th>Ref</th>
-            <th className="col-tech">🧰<span>Tubo</span></th>
-            <th className="col-tech">🔌<span>Cable</span></th>
-            <th className="col-tech">🎛<span>Mecanismo</span></th>
-            <th className="col-tech">💻<span>Programación</span></th>
+            <th>🧰 Tubo</th>
+            <th>🔌 Cable</th>
+            <th>🎛 Mecanismo</th>
+            <th>💻 Programación</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           {estancia.puntos.map(([el, ref], i) => (
             <tr key={estanciaKey + ref}>
-              <td>{edit?.i===i ? <input value={edit.el} onChange={e=>setEdit({...edit,el:e.target.value})}/> : el}</td>
-              <td>{edit?.i===i ? <input value={edit.ref} onChange={e=>setEdit({...edit,ref:e.target.value})}/> : ref}</td>
+              <td data-label="Elemento">{edit?.i===i ? <input value={edit.el} onChange={e=>setEdit({...edit,el:e.target.value})}/> : el}</td>
+              <td data-label="Ref">{edit?.i===i ? <input value={edit.ref} onChange={e=>setEdit({...edit,ref:e.target.value})}/> : ref}</td>
+
               {["tubo","cable","mecanismo","prog"].map(c => (
-                <td key={c}>
+                <td key={c} data-label={
+                  c==="tubo"?"🧰 Tubo":
+                  c==="cable"?"🔌 Cable":
+                  c==="mecanismo"?"🎛 Mecanismo":
+                  "💻 Programación"
+                }>
                   <button className={estadoGlobal[ref]?.[c] ? "ok" : "pendiente"} onClick={() => toggle(ref, c)}>
                     {estadoGlobal[ref]?.[c] ? "✔" : "—"}
                   </button>
                 </td>
               ))}
-              <td>
+
+              <td data-label="Editar">
                 {edit?.i===i
                   ? <button className="btn-save" onClick={()=>save(i)}>💾</button>
                   : <button className="btn-edit" onClick={()=>setEdit({i,el,ref})}>✏️</button>}
