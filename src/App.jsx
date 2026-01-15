@@ -23,6 +23,19 @@ export default function App() {
     localStorage.setItem("obrasData", JSON.stringify(obras));
   }, [obras]);
 
+  const crearObra = () => {
+    const nombre = prompt("Nombre de la nueva obra:");
+    if (!nombre || obras[nombre]) return;
+    setObras({
+      ...obras,
+      [nombre]: {
+        estancias: JSON.parse(JSON.stringify(baseEstancias)),
+        estadoGlobal: {}
+      }
+    });
+    setObraActual(nombre);
+  };
+
   const progresoTotal = () => {
     let total = 0, hechos = 0;
     Object.values(obra.estancias).forEach(e => {
@@ -82,9 +95,12 @@ export default function App() {
             )}
           </div>
 
-          <button className="btn-global" onClick={()=>setActual(actual==="GLOBAL"?Object.keys(obra.estancias)[0]:"GLOBAL")}>
-            {actual==="GLOBAL"?"⬅ Volver":"🌐 Vista Global"}
-          </button>
+          <div style={{display:"flex",gap:8}}>
+            <button className="btn-global" onClick={()=>setActual(actual==="GLOBAL"?Object.keys(obra.estancias)[0]:"GLOBAL")}>
+              {actual==="GLOBAL"?"⬅ Volver":"🌐 Vista Global"}
+            </button>
+            <button className="btn-add" onClick={crearObra}>➕ Nueva obra</button>
+          </div>
         </div>
 
         <select className="selector" value={obraActual} onChange={e=>setObraActual(e.target.value)}>
