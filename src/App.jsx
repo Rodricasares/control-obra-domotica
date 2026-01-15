@@ -19,6 +19,8 @@ export default function App() {
   const [obraActual, setObraActual] = useState("Poniente");
   const obra = obras[obraActual];
 
+  const [actual, setActual] = useState(Object.keys(obra.estancias)[0]);
+
   useEffect(() => {
     localStorage.setItem("obrasData", JSON.stringify(obras));
   }, [obras]);
@@ -34,6 +36,16 @@ export default function App() {
       }
     });
     setObraActual(nombre);
+  };
+
+  const crearEstancia = () => {
+    const nombre = prompt("Nombre de la estancia:");
+    if (!nombre) return;
+    const key = nombre.toLowerCase().replace(/\s+/g,"_");
+    const copia = {...obras};
+    copia[obraActual].estancias[key] = { nombre: "🏠 " + nombre, puntos: [] };
+    setObras(copia);
+    setActual(key);
   };
 
   const progresoTotal = () => {
@@ -68,8 +80,6 @@ export default function App() {
     return total ? Math.round((hechos / total) * 100) : 0;
   };
 
-  const [actual, setActual] = useState(Object.keys(obra.estancias)[0]);
-
   return (
     <div className="app">
       <div className="panel">
@@ -100,6 +110,7 @@ export default function App() {
               {actual==="GLOBAL"?"⬅ Volver":"🌐 Vista Global"}
             </button>
             <button className="btn-add" onClick={crearObra}>➕ Nueva obra</button>
+            <button className="btn-add" onClick={crearEstancia}>➕ Nueva estancia</button>
           </div>
         </div>
 
