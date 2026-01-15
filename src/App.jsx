@@ -1,176 +1,70 @@
-import { useState, useEffect } from "react";
-import { baseEstancias } from "./data/estancias";
-import TablaEstancia from "./components/TablaEstancia";
-import VistaGlobal from "./components/VistaGlobal";
-import Material from "./components/Material";
-import "./App.css";
+import { useState } from "react";
+import { catalogo } from "../data/catalogo";
 
-export default function App() {
+export default function TablaEstancia({ estancia, estanciaKey, estancias, setEstancias, estadoGlobal, setEstadoGlobal }) {
 
-  const [obras, setObras] = useState(() => {
-    const saved = localStorage.getItem("obrasData");
-    return saved ? JSON.parse(saved) : {
-      "Poniente": {
-        estancias: JSON.parse(JSON.stringify(baseEstancias)),
-        estadoGlobal: {}
-      }
-    };
-  });
+  const [nuevo, setNuevo] = useState({ cod:"DL01", ref:"", qty:1 });
 
-  const [obraActual, setObraActual] = useState("Poniente");
-  const obra = obras[obraActual];
-
-  const [actual, setActual] = useState(Object.keys(obra.estancias)[0]);
-
-  const [modalEstancia, setModalEstancia] = useState(false);
-  const [nuevoNombre, setNuevoNombre] = useState("");
-  const [nuevoEmoji, setNuevoEmoji] = useState("🏠");
-
-  useEffect(() => {
-    localStorage.setItem("obrasData", JSON.stringify(obras));
-  }, [obras]);
-
-  const crearObra = () => {
-    const nombre = prompt("Nombre de la nueva obra:");
-    if (!nombre || obras[nombre]) return;
-    setObras({
-      ...obras,
-      [nombre]: {
-        estancias: JSON.parse(JSON.stringify(baseEstancias)),
-        estadoGlobal: {}
-      }
+  const toggle = (ref, campo) => {
+    setEstadoGlobal({
+      ...estadoGlobal,
+      [ref]: { ...estadoGlobal[ref], [campo]: !estadoGlobal[ref]?.[campo] }
     });
-    setObraActual(nombre);
   };
 
-  const crearEstancia = () => setModalEstancia(true);
-
-  const guardarEstancia = () => {
-    if (!nuevoNombre) return;
-    const key = nuevoNombre.toLowerCase().replace(/\s+/g,"_");
-    setObras({
-      ...obras,
-      [obraActual]: {
-        ...obra,
-        estancias: {
-          ...obra.estancias,
-          [key]: { nombre: `${nuevoEmoji} ${nuevoNombre}`, puntos: [] }
-        }
-      }
-    });
-    setActual(key);
-    setModalEstancia(false);
-    setNuevoNombre("");
-    setNuevoEmoji("🏠");
-  };
-
-  const progresoTotal = () => {
-    let total = 0, hechos = 0;
-    Object.values(obra.estancias).forEach(e => {
-      e.puntos.forEach(([_, ref]) => {
-        total += 4;
-        const p = obra.estadoGlobal[ref];
-        if (p) {
-          if (p.tubo) hechos++;
-          if (p.cable) hechos++;
-          if (p.mecanismo) hechos++;
-          if (p.prog) hechos++;
-        }
-      });
-    });
-    return total ? Math.round((hechos / total) * 100) : 0;
-  };
-
-  const progresoEstancia = (k) => {
-    let total = 0, hechos = 0;
-    obra.estancias[k].puntos.forEach(([_, ref]) => {
-      total += 4;
-      const p = obra.estadoGlobal[ref];
-      if (p) {
-        if (p.tubo) hechos++;
-        if (p.cable) hechos++;
-        if (p.mecanismo) hechos++;
-        if (p.prog) hechos++;
-      }
-    });
-    return total ? Math.round((hechos / total) * 100) : 0;
+  const add = () => {
+    if (!nuevo.ref) return;
+    const copia = {...estancias};
+    copia[estanciaKey].puntos.push([nuevo.cod, nuevo.ref, nuevo.qty]);
+    setEstancias(copia);
+    setNuevo({ cod:"DL01", ref:"", qty:1 });
   };
 
   return (
-    <div className="app">
-      <div className="panel">
+    <>
+      <h2 className="estancia-title">📍 {estancia.nombre}</h2>
 
-        <div className="topbar">
-          <div>
-            <div className="progress-title">
-              🏗 OBRA: {obraActual} — <strong>{progresoTotal()}%</strong>
-            </div>
-            <div className="progress">
-              <div className="progress-bar" style={{width: progresoTotal()+"%"}}/>
-            </div>
-
-            {actual !== "GLOBAL" && actual !== "MATERIAL" && (
-              <>
-                <div className="progress-title" style={{marginTop:10}}>
-                  📍 {obra.estancias[actual].nombre}: <strong>{progresoEstancia(actual)}%</strong>
-                </div>
-                <div className="progress blue">
-                  <div className="progress-bar blue" style={{width: progresoEstancia(actual)+"%"}}/>
-                </div>
-              </>
-            )}
-          </div>
-
-          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            <button className="btn-global" onClick={()=>setActual("GLOBAL")}>🌐 Global</button>
-            <button className="btn-global" onClick={()=>setActual("MATERIAL")}>📦 Material</button>
-            <button className="btn-add" onClick={crearObra}>➕ Nueva obra</button>
-            <button className="btn-add" onClick={crearEstancia}>➕ Nueva estancia</button>
-          </div>
-        </div>
-
-        <select className="selector" value={obraActual} onChange={e=>setObraActual(e.target.value)}>
-          {Object.keys(obras).map(o=><option key={o}>{o}</option>)}
+      <div className="add-bar">
+        <select value={nuevo.cod} onChange={e=>setNuevo({...nuevo,cod:e.target.value})}>
+          {Object.entries(catalogo).map(([k,v])=>(
+            <option key={k} value={k}>{k} — {v.nombre}</option>
+          ))}
         </select>
 
-        {actual!=="GLOBAL" && actual!=="MATERIAL" && (
-          <select className="selector" value={actual} onChange={e=>setActual(e.target.value)}>
-            {Object.keys(obra.estancias).map(k=>(
-              <option key={k} value={k}>{obra.estancias[k].nombre}</option>
-            ))}
-          </select>
-        )}
+        <input placeholder="Ref" value={nuevo.ref}
+          onChange={e=>setNuevo({...nuevo,ref:e.target.value})}/>
 
-        {actual==="GLOBAL"
-          ? <VistaGlobal estancias={obra.estancias} estadoGlobal={obra.estadoGlobal}/>
-          : actual==="MATERIAL"
-            ? <Material estancias={obra.estancias}/>
-            : <TablaEstancia
-                estanciaKey={actual}
-                estancia={obra.estancias[actual]}
-                estancias={obra.estancias}
-                setEstancias={est => setObras({...obras,[obraActual]:{...obra,estancias:est}})}
-                estadoGlobal={obra.estadoGlobal}
-                setEstadoGlobal={eg => setObras({...obras,[obraActual]:{...obra,estadoGlobal:eg}})}
-              />
-        }
+        <input type="number" min="1" value={nuevo.qty}
+          onChange={e=>setNuevo({...nuevo,qty:parseInt(e.target.value)})}/>
 
-        {modalEstancia && (
-          <div className="modal">
-            <div className="modal-box">
-              <h3>Nueva estancia</h3>
-              <input placeholder="Nombre" value={nuevoNombre}
-                onChange={e=>setNuevoNombre(e.target.value)}/>
-              <select value={nuevoEmoji} onChange={e=>setNuevoEmoji(e.target.value)}>
-                <option>🛋</option><option>🍽</option><option>🛏</option><option>🚿</option>
-                <option>🧑‍💼</option><option>🚪</option><option>🪜</option><option>🏠</option>
-              </select>
-              <button className="btn-add" onClick={guardarEstancia}>Crear estancia</button>
-            </div>
-          </div>
-        )}
-
+        <button className="btn-add" onClick={add}>➕ Añadir</button>
       </div>
-    </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Material</th><th>Ref</th><th>Cant</th>
+            <th>🧰</th><th>🔌</th><th>🎛</th><th>💻</th>
+          </tr>
+        </thead>
+        <tbody>
+          {estancia.puntos.map(([cod, ref, qty]) => (
+            <tr key={ref}>
+              <td data-label="Material">{catalogo[cod]?.nombre}</td>
+              <td data-label="Ref">{ref}</td>
+              <td data-label="Cant">{qty}</td>
+              {["tubo","cable","mecanismo","prog"].map(c=>(
+                <td key={c}>
+                  <button className={estadoGlobal[ref]?.[c] ? "ok" : "pendiente"}
+                    onClick={()=>toggle(ref,c)}>
+                    {estadoGlobal[ref]?.[c] ? "✔" : "—"}
+                  </button>
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
   );
 }
