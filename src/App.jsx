@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { baseEstancias } from "./data/estancias";
 import TablaEstancia from "./components/TablaEstancia";
 import VistaGlobal from "./components/VistaGlobal";
+import Material from "./components/Material";
 import "./App.css";
 
 export default function App() {
@@ -108,7 +109,7 @@ export default function App() {
               <div className="progress-bar" style={{width: progresoTotal()+"%"}}/>
             </div>
 
-            {actual !== "GLOBAL" && (
+            {actual !== "GLOBAL" && actual !== "MATERIAL" && (
               <>
                 <div className="progress-title" style={{marginTop:10}}>
                   📍 {obra.estancias[actual].nombre}: <strong>{progresoEstancia(actual)}%</strong>
@@ -120,10 +121,9 @@ export default function App() {
             )}
           </div>
 
-          <div style={{display:"flex",gap:8}}>
-            <button className="btn-global" onClick={()=>setActual(actual==="GLOBAL"?Object.keys(obra.estancias)[0]:"GLOBAL")}>
-              {actual==="GLOBAL"?"⬅ Volver":"🌐 Vista Global"}
-            </button>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            <button className="btn-global" onClick={()=>setActual("GLOBAL")}>🌐 Global</button>
+            <button className="btn-global" onClick={()=>setActual("MATERIAL")}>📦 Material</button>
             <button className="btn-add" onClick={crearObra}>➕ Nueva obra</button>
             <button className="btn-add" onClick={crearEstancia}>➕ Nueva estancia</button>
           </div>
@@ -133,7 +133,7 @@ export default function App() {
           {Object.keys(obras).map(o=><option key={o}>{o}</option>)}
         </select>
 
-        {actual!=="GLOBAL" && (
+        {actual!=="GLOBAL" && actual!=="MATERIAL" && (
           <select className="selector" value={actual} onChange={e=>setActual(e.target.value)}>
             {Object.keys(obra.estancias).map(k=>(
               <option key={k} value={k}>{obra.estancias[k].nombre}</option>
@@ -143,14 +143,16 @@ export default function App() {
 
         {actual==="GLOBAL"
           ? <VistaGlobal estancias={obra.estancias} estadoGlobal={obra.estadoGlobal}/>
-          : <TablaEstancia
-              estanciaKey={actual}
-              estancia={obra.estancias[actual]}
-              estancias={obra.estancias}
-              setEstancias={est => setObras({...obras,[obraActual]:{...obra,estancias:est}})}
-              estadoGlobal={obra.estadoGlobal}
-              setEstadoGlobal={eg => setObras({...obras,[obraActual]:{...obra,estadoGlobal:eg}})}
-            />
+          : actual==="MATERIAL"
+            ? <Material estancias={obra.estancias}/>
+            : <TablaEstancia
+                estanciaKey={actual}
+                estancia={obra.estancias[actual]}
+                estancias={obra.estancias}
+                setEstancias={est => setObras({...obras,[obraActual]:{...obra,estancias:est}})}
+                estadoGlobal={obra.estadoGlobal}
+                setEstadoGlobal={eg => setObras({...obras,[obraActual]:{...obra,estadoGlobal:eg}})}
+              />
         }
 
         {modalEstancia && (
