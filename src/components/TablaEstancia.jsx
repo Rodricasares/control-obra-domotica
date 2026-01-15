@@ -2,7 +2,7 @@ import { useState } from "react";
 
 export default function TablaEstancia({ estancia, estanciaKey, estancias, setEstancias, estadoGlobal, setEstadoGlobal }) {
 
-  const [nuevo, setNuevo] = useState({ el:"", ref:"" });
+  const [nuevo, setNuevo] = useState({ el:"", ref:"", qty:1 });
   const [edit, setEdit] = useState(null);
 
   const toggle = (ref, campo) => {
@@ -15,14 +15,14 @@ export default function TablaEstancia({ estancia, estanciaKey, estancias, setEst
   const add = () => {
     if (!nuevo.el || !nuevo.ref) return;
     const copia = {...estancias};
-    copia[estanciaKey].puntos.push([nuevo.el, nuevo.ref]);
+    copia[estanciaKey].puntos.push([nuevo.el, nuevo.ref, nuevo.qty]);
     setEstancias(copia);
-    setNuevo({ el:"", ref:"" });
+    setNuevo({ el:"", ref:"", qty:1 });
   };
 
   const save = (i) => {
     const copia = {...estancias};
-    copia[estanciaKey].puntos[i] = [edit.el, edit.ref];
+    copia[estanciaKey].puntos[i] = [edit.el, edit.ref, edit.qty];
     setEstancias(copia);
     setEdit(null);
   };
@@ -34,36 +34,29 @@ export default function TablaEstancia({ estancia, estanciaKey, estancias, setEst
       <div className="add-bar">
         <input placeholder="Elemento" value={nuevo.el}
           onChange={e=>setNuevo({...nuevo,el:e.target.value})}/>
-        <input placeholder="Referencia" value={nuevo.ref}
+        <input placeholder="Ref" value={nuevo.ref}
           onChange={e=>setNuevo({...nuevo,ref:e.target.value})}/>
-        <button className="btn-add" onClick={add}>➕ Añadir punto</button>
+        <input type="number" min="1" value={nuevo.qty}
+          onChange={e=>setNuevo({...nuevo,qty:parseInt(e.target.value)})}/>
+        <button className="btn-add" onClick={add}>➕ Añadir</button>
       </div>
 
       <table>
         <thead>
           <tr>
-            <th>Elemento</th>
-            <th>Ref</th>
-            <th>🧰 Tubo</th>
-            <th>🔌 Cable</th>
-            <th>🎛 Mecanismo</th>
-            <th>💻 Programación</th>
-            <th></th>
+            <th>Elemento</th><th>Ref</th><th>Cant.</th>
+            <th>🧰 Tubo</th><th>🔌 Cable</th><th>🎛 Mecanismo</th><th>💻 Prog</th><th></th>
           </tr>
         </thead>
         <tbody>
-          {estancia.puntos.map(([el, ref], i) => (
+          {estancia.puntos.map(([el, ref, qty], i) => (
             <tr key={estanciaKey + ref}>
               <td data-label="Elemento">{edit?.i===i ? <input value={edit.el} onChange={e=>setEdit({...edit,el:e.target.value})}/> : el}</td>
               <td data-label="Ref">{edit?.i===i ? <input value={edit.ref} onChange={e=>setEdit({...edit,ref:e.target.value})}/> : ref}</td>
+              <td data-label="Cantidad">{edit?.i===i ? <input type="number" value={edit.qty} onChange={e=>setEdit({...edit,qty:parseInt(e.target.value)})}/> : qty}</td>
 
               {["tubo","cable","mecanismo","prog"].map(c => (
-                <td key={c} data-label={
-                  c==="tubo"?"🧰 Tubo":
-                  c==="cable"?"🔌 Cable":
-                  c==="mecanismo"?"🎛 Mecanismo":
-                  "💻 Programación"
-                }>
+                <td key={c} data-label={c}>
                   <button className={estadoGlobal[ref]?.[c] ? "ok" : "pendiente"} onClick={() => toggle(ref, c)}>
                     {estadoGlobal[ref]?.[c] ? "✔" : "—"}
                   </button>
@@ -73,7 +66,7 @@ export default function TablaEstancia({ estancia, estanciaKey, estancias, setEst
               <td data-label="Editar">
                 {edit?.i===i
                   ? <button className="btn-save" onClick={()=>save(i)}>💾</button>
-                  : <button className="btn-edit" onClick={()=>setEdit({i,el,ref})}>✏️</button>}
+                  : <button className="btn-edit" onClick={()=>setEdit({i,el,ref,qty})}>✏️</button>}
               </td>
             </tr>
           ))}
