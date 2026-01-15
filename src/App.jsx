@@ -41,9 +41,15 @@ export default function App() {
   const crearEstancia = () => {
     const nombre = prompt("Nombre de la estancia:");
     if (!nombre) return;
+
+    const emoji = prompt("Emoji para la estancia (ej: 🛏 🛋 🍽 🚿 🧑‍💼):","🏠");
     const key = nombre.toLowerCase().replace(/\s+/g,"_");
+
     const copia = {...obras};
-    copia[obraActual].estancias[key] = { nombre: "🏠 " + nombre, puntos: [] };
+    copia[obraActual].estancias[key] = {
+      nombre: `${emoji} ${nombre}`,
+      puntos: []
+    };
     setObras(copia);
     setActual(key);
   };
