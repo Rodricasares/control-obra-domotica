@@ -5,28 +5,30 @@ import VistaGlobal from "./components/VistaGlobal";
 import "./App.css";
 
 export default function App() {
-  const [estancias, setEstancias] = useState(() => {
-    const saved = localStorage.getItem("estanciasEdit");
-    return saved ? JSON.parse(saved) : baseEstancias;
+
+  const [obras, setObras] = useState(() => {
+    const saved = localStorage.getItem("obrasData");
+    return saved ? JSON.parse(saved) : {
+      "Poniente": {
+        estancias: JSON.parse(JSON.stringify(baseEstancias)),
+        estadoGlobal: {}
+      }
+    };
   });
 
-  const [actual, setActual] = useState("salon");
-  const [estadoGlobal, setEstadoGlobal] = useState(() => {
-    const saved = localStorage.getItem("estadoObra");
-    return saved ? JSON.parse(saved) : {};
-  });
+  const [obraActual, setObraActual] = useState("Poniente");
+  const obra = obras[obraActual];
 
   useEffect(() => {
-    localStorage.setItem("estadoObra", JSON.stringify(estadoGlobal));
-    localStorage.setItem("estanciasEdit", JSON.stringify(estancias));
-  }, [estadoGlobal, estancias]);
+    localStorage.setItem("obrasData", JSON.stringify(obras));
+  }, [obras]);
 
   const progresoTotal = () => {
     let total = 0, hechos = 0;
-    Object.values(estancias).forEach(e => {
+    Object.values(obra.estancias).forEach(e => {
       e.puntos.forEach(([_, ref]) => {
         total += 4;
-        const p = estadoGlobal[ref];
+        const p = obra.estadoGlobal[ref];
         if (p) {
           if (p.tubo) hechos++;
           if (p.cable) hechos++;
@@ -38,11 +40,11 @@ export default function App() {
     return total ? Math.round((hechos / total) * 100) : 0;
   };
 
-  const progresoEstancia = () => {
+  const progresoEstancia = (k) => {
     let total = 0, hechos = 0;
-    estancias[actual]?.puntos.forEach(([_, ref]) => {
+    obra.estancias[k].puntos.forEach(([_, ref]) => {
       total += 4;
-      const p = estadoGlobal[ref];
+      const p = obra.estadoGlobal[ref];
       if (p) {
         if (p.tubo) hechos++;
         if (p.cable) hechos++;
@@ -53,6 +55,8 @@ export default function App() {
     return total ? Math.round((hechos / total) * 100) : 0;
   };
 
+  const [actual, setActual] = useState(Object.keys(obra.estancias)[0]);
+
   return (
     <div className="app">
       <div className="panel">
@@ -60,7 +64,7 @@ export default function App() {
         <div className="topbar">
           <div>
             <div className="progress-title">
-              🏗 OBRA TOTAL: <strong>{progresoTotal()}%</strong>
+              🏗 OBRA: {obraActual} — <strong>{progresoTotal()}%</strong>
             </div>
             <div className="progress">
               <div className="progress-bar" style={{width: progresoTotal()+"%"}}/>
@@ -69,42 +73,43 @@ export default function App() {
             {actual !== "GLOBAL" && (
               <>
                 <div className="progress-title" style={{marginTop:10}}>
-                  📍 ESTA ESTANCIA: <strong>{progresoEstancia()}%</strong>
+                  📍 {obra.estancias[actual].nombre}: <strong>{progresoEstancia(actual)}%</strong>
                 </div>
                 <div className="progress blue">
-                  <div className="progress-bar blue" style={{width: progresoEstancia()+"%"}}/>
+                  <div className="progress-bar blue" style={{width: progresoEstancia(actual)+"%"}}/>
                 </div>
               </>
             )}
           </div>
 
-          {actual === "GLOBAL" ? (
-            <button className="btn-global" onClick={()=>setActual("salon")}>⬅ Volver</button>
-          ) : (
-            <button className="btn-global" onClick={()=>setActual("GLOBAL")}>🌐 Vista Global</button>
-          )}
+          <button className="btn-global" onClick={()=>setActual(actual==="GLOBAL"?Object.keys(obra.estancias)[0]:"GLOBAL")}>
+            {actual==="GLOBAL"?"⬅ Volver":"🌐 Vista Global"}
+          </button>
         </div>
 
-        {actual !== "GLOBAL" && (
-          <select className="selector" value={actual} onChange={e => setActual(e.target.value)}>
-            {Object.keys(estancias).map(k => (
-              <option key={k} value={k}>{estancias[k].nombre}</option>
+        <select className="selector" value={obraActual} onChange={e=>setObraActual(e.target.value)}>
+          {Object.keys(obras).map(o=><option key={o}>{o}</option>)}
+        </select>
+
+        {actual!=="GLOBAL" && (
+          <select className="selector" value={actual} onChange={e=>setActual(e.target.value)}>
+            {Object.keys(obra.estancias).map(k=>(
+              <option key={k} value={k}>{obra.estancias[k].nombre}</option>
             ))}
           </select>
         )}
 
-        {actual === "GLOBAL" ? (
-          <VistaGlobal estancias={estancias} estadoGlobal={estadoGlobal}/>
-        ) : (
-          <TablaEstancia
-            estanciaKey={actual}
-            estancia={estancias[actual]}
-            estancias={estancias}
-            setEstancias={setEstancias}
-            estadoGlobal={estadoGlobal}
-            setEstadoGlobal={setEstadoGlobal}
-          />
-        )}
+        {actual==="GLOBAL"
+          ? <VistaGlobal estancias={obra.estancias} estadoGlobal={obra.estadoGlobal}/>
+          : <TablaEstancia
+              estanciaKey={actual}
+              estancia={obra.estancias[actual]}
+              estancias={obra.estancias}
+              setEstancias={est => setObras({...obras,[obraActual]:{...obra,estancias:est}})}
+              estadoGlobal={obra.estadoGlobal}
+              setEstadoGlobal={eg => setObras({...obras,[obraActual]:{...obra,estadoGlobal:eg}})}
+            />
+        }
       </div>
     </div>
   );
