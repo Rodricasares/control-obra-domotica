@@ -21,6 +21,10 @@ export default function App() {
 
   const [actual, setActual] = useState(Object.keys(obra.estancias)[0]);
 
+  const [modalEstancia, setModalEstancia] = useState(false);
+  const [nuevoNombre, setNuevoNombre] = useState("");
+  const [nuevoEmoji, setNuevoEmoji] = useState("🏠");
+
   useEffect(() => {
     localStorage.setItem("obrasData", JSON.stringify(obras));
   }, [obras]);
@@ -38,20 +42,25 @@ export default function App() {
     setObraActual(nombre);
   };
 
-  const crearEstancia = () => {
-    const nombre = prompt("Nombre de la estancia:");
-    if (!nombre) return;
+  const crearEstancia = () => setModalEstancia(true);
 
-    const emoji = prompt("Emoji para la estancia (ej: 🛏 🛋 🍽 🚿 🧑‍💼):","🏠");
-    const key = nombre.toLowerCase().replace(/\s+/g,"_");
-
-    const copia = {...obras};
-    copia[obraActual].estancias[key] = {
-      nombre: `${emoji} ${nombre}`,
-      puntos: []
-    };
-    setObras(copia);
+  const guardarEstancia = () => {
+    if (!nuevoNombre) return;
+    const key = nuevoNombre.toLowerCase().replace(/\s+/g,"_");
+    setObras({
+      ...obras,
+      [obraActual]: {
+        ...obra,
+        estancias: {
+          ...obra.estancias,
+          [key]: { nombre: `${nuevoEmoji} ${nuevoNombre}`, puntos: [] }
+        }
+      }
+    });
     setActual(key);
+    setModalEstancia(false);
+    setNuevoNombre("");
+    setNuevoEmoji("🏠");
   };
 
   const progresoTotal = () => {
@@ -143,6 +152,22 @@ export default function App() {
               setEstadoGlobal={eg => setObras({...obras,[obraActual]:{...obra,estadoGlobal:eg}})}
             />
         }
+
+        {modalEstancia && (
+          <div className="modal">
+            <div className="modal-box">
+              <h3>Nueva estancia</h3>
+              <input placeholder="Nombre" value={nuevoNombre}
+                onChange={e=>setNuevoNombre(e.target.value)}/>
+              <select value={nuevoEmoji} onChange={e=>setNuevoEmoji(e.target.value)}>
+                <option>🛋</option><option>🍽</option><option>🛏</option><option>🚿</option>
+                <option>🧑‍💼</option><option>🚪</option><option>🪜</option><option>🏠</option>
+              </select>
+              <button className="btn-add" onClick={guardarEstancia}>Crear estancia</button>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

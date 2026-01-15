@@ -94,3 +94,29 @@ tbody tr:nth-child(even){background:#f9fafb;}
     font-size:.75rem;
   }
 }
+
+.modal {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.4);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.modal-box {
+  background:white;
+  padding:20px;
+  border-radius:18px;
+  width:280px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.modal-box input,
+.modal-box select {
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ddd;
+}
