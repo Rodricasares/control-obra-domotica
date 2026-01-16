@@ -1,24 +1,63 @@
+import { useState } from "react";
+
+const ARTICULOS = [
+  "Downlight",
+  "Pulsador",
+  "Sensor",
+  "Tira LED",
+  "Aplique",
+  "Luminaria exterior"
+];
+
 export default function TablaEstancia() {
+  const [filas, setFilas] = useState([]);
+
+  const addFila = () => {
+    setFilas([...filas, { el: ARTICULOS[0], ref: "" }]);
+  };
+
+  const update = (i, campo, valor) => {
+    const copia = [...filas];
+    copia[i][campo] = valor;
+    setFilas(copia);
+  };
+
   return (
-    <div style={{
-      padding: 30,
-      border: "4px solid red",
-      borderRadius: 12,
-      background: "white"
-    }}>
-      <h1>TEST SELECTOR</h1>
+    <div style={{ width: "100%", maxWidth: 600 }}>
+      <h2>Tabla con selector</h2>
 
-      <p>Si ves este selector, TODO FUNCIONA.</p>
+      <button onClick={addFila}>➕ Añadir fila</button>
 
-      <select style={{
-        padding: 10,
-        fontSize: 16
-      }}>
-        <option>Downlight</option>
-        <option>Pulsador</option>
-        <option>Sensor</option>
-        <option>Tira LED</option>
-      </select>
+      <table style={{ width: "100%", marginTop: 12 }}>
+        <thead>
+          <tr>
+            <th>Elemento</th>
+            <th>Referencia</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filas.map((f, i) => (
+            <tr key={i}>
+              <td>
+                <select
+                  value={f.el}
+                  onChange={e => update(i, "el", e.target.value)}
+                >
+                  {ARTICULOS.map(a => (
+                    <option key={a} value={a}>{a}</option>
+                  ))}
+                </select>
+              </td>
+              <td>
+                <input
+                  value={f.ref}
+                  onChange={e => update(i, "ref", e.target.value)}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
