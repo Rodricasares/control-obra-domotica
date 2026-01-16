@@ -1,63 +1,77 @@
 import { useState } from "react";
 
-const ARTICULOS = [
-  "Downlight",
-  "Pulsador",
-  "Sensor",
-  "Tira LED",
-  "Aplique",
-  "Luminaria exterior"
-];
+export default function TablaEstancia({ estancia, estanciaKey, estancias, setEstancias, estadoGlobal, setEstadoGlobal }) {
 
-export default function TablaEstancia() {
-  const [filas, setFilas] = useState([]);
+  const [nuevo, setNuevo] = useState({ el:"", ref:"", qty:1 });
+  const [edit, setEdit] = useState(null);
 
-  const addFila = () => {
-    setFilas([...filas, { el: ARTICULOS[0], ref: "" }]);
+  const toggle = (ref, campo) => {
+    setEstadoGlobal({
+      ...estadoGlobal,
+      [ref]: { ...estadoGlobal[ref], [campo]: !estadoGlobal[ref]?.[campo] }
+    });
   };
 
-  const update = (i, campo, valor) => {
-    const copia = [...filas];
-    copia[i][campo] = valor;
-    setFilas(copia);
+  const add = () => {
+    if (!nuevo.el || !nuevo.ref) return;
+    const copia = {...estancias};
+    copia[estanciaKey].puntos.push([nuevo.el, nuevo.ref, nuevo.qty]);
+    setEstancias(copia);
+    setNuevo({ el:"", ref:"", qty:1 });
+  };
+
+  const save = (i) => {
+    const copia = {...estancias};
+    copia[estanciaKey].puntos[i] = [edit.el, edit.ref, edit.qty];
+    setEstancias(copia);
+    setEdit(null);
   };
 
   return (
-    <div style={{ width: "100%", maxWidth: 600 }}>
-      <h2>Tabla con selector</h2>
+    <>
+      <h2 className="estancia-title">📍 {estancia.nombre}</h2>
 
-      <button onClick={addFila}>➕ Añadir fila</button>
+      <div className="add-bar">
+        <input placeholder="Elemento" value={nuevo.el}
+          onChange={e=>setNuevo({...nuevo,el:e.target.value})}/>
+        <input placeholder="Ref" value={nuevo.ref}
+          onChange={e=>setNuevo({...nuevo,ref:e.target.value})}/>
+        <input type="number" min="1" value={nuevo.qty}
+          onChange={e=>setNuevo({...nuevo,qty:parseInt(e.target.value)})}/>
+        <button className="btn-add" onClick={add}>➕ Añadir</button>
+      </div>
 
-      <table style={{ width: "100%", marginTop: 12 }}>
+      <table>
         <thead>
           <tr>
-            <th>Elemento</th>
-            <th>Referencia</th>
+            <th>Elemento</th><th>Ref</th><th>Cant.</th>
+            <th>🧰 Tubo</th><th>🔌 Cable</th><th>🎛 Mecanismo</th><th>💻 Prog</th><th></th>
           </tr>
         </thead>
         <tbody>
-          {filas.map((f, i) => (
-            <tr key={i}>
-              <td>
-                <select
-                  value={f.el}
-                  onChange={e => update(i, "el", e.target.value)}
-                >
-                  {ARTICULOS.map(a => (
-                    <option key={a} value={a}>{a}</option>
-                  ))}
-                </select>
-              </td>
-              <td>
-                <input
-                  value={f.ref}
-                  onChange={e => update(i, "ref", e.target.value)}
-                />
+          {estancia.puntos.map(([el, ref, qty], i) => (
+            <tr key={estanciaKey + ref}>
+              <td data-label="Elemento">{edit?.i===i ? <input value={edit.el} onChange={e=>setEdit({...edit,el:e.target.value})}/> : el}</td>
+              <td data-label="Ref">{edit?.i===i ? <input value={edit.ref} onChange={e=>setEdit({...edit,ref:e.target.value})}/> : ref}</td>
+              <td data-label="Cantidad">{edit?.i===i ? <input type="number" value={edit.qty} onChange={e=>setEdit({...edit,qty:parseInt(e.target.value)})}/> : qty}</td>
+
+              {["tubo","cable","mecanismo","prog"].map(c => (
+                <td key={c} data-label={c}>
+                  <button className={estadoGlobal[ref]?.[c] ? "ok" : "pendiente"} onClick={() => toggle(ref, c)}>
+                    {estadoGlobal[ref]?.[c] ? "✔" : "—"}
+                  </button>
+                </td>
+              ))}
+
+              <td data-label="Editar">
+                {edit?.i===i
+                  ? <button className="btn-save" onClick={()=>save(i)}>💾</button>
+                  : <button className="btn-edit" onClick={()=>setEdit({i,el,ref,qty})}>✏️</button>}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
+    </>
   );
 }
