@@ -9,7 +9,6 @@ export default function TablaEstancia({
   estadoGlobal,
   setEstadoGlobal
 }) {
-
   const [nuevo, setNuevo] = useState({
     el: articulos[0],
     ref: "",
@@ -31,8 +30,8 @@ export default function TablaEstancia({
 
     const copia = { ...estancias };
     copia[estanciaKey].puntos.push([nuevo.el, nuevo.ref, nuevo.qty]);
-
     setEstancias(copia);
+
     setNuevo({ el: articulos[0], ref: "", qty: 1 });
   };
 
@@ -40,31 +39,42 @@ export default function TablaEstancia({
     <>
       <h2 className="estancia-title">📍 {estancia.nombre}</h2>
 
-      {/* AÑADIR PUNTO */}
+      {/* BARRA AÑADIR */}
       <div className="add-bar">
         <select
+          className="select-elemento"
           value={nuevo.el}
-          onChange={e => setNuevo({ ...nuevo, el: e.target.value })}
+          onChange={e =>
+            setNuevo({ ...nuevo, el: e.target.value })
+          }
         >
           {articulos.map(a => (
-            <option key={a} value={a}>{a}</option>
+            <option key={a} value={a}>
+              {a}
+            </option>
           ))}
         </select>
 
         <input
           placeholder="Referencia"
           value={nuevo.ref}
-          onChange={e => setNuevo({ ...nuevo, ref: e.target.value })}
+          onChange={e =>
+            setNuevo({ ...nuevo, ref: e.target.value })
+          }
         />
 
         <input
           type="number"
           min="1"
           value={nuevo.qty}
-          onChange={e => setNuevo({ ...nuevo, qty: Number(e.target.value) })}
+          onChange={e =>
+            setNuevo({ ...nuevo, qty: Number(e.target.value) })
+          }
         />
 
-        <button className="btn-add" onClick={add}>➕ Añadir</button>
+        <button className="btn-add" onClick={add}>
+          ➕ Añadir
+        </button>
       </div>
 
       {/* TABLA */}
@@ -89,9 +99,13 @@ export default function TablaEstancia({
               <td data-label="Cantidad">{qty}</td>
 
               {["tubo", "cable", "mecanismo", "prog"].map(c => (
-                <td key={c} data-label={c}>
+                <td key={c}>
                   <button
-                    className={estadoGlobal[ref]?.[c] ? "ok" : "pendiente"}
+                    className={
+                      estadoGlobal[ref]?.[c]
+                        ? "ok"
+                        : "pendiente"
+                    }
                     onClick={() => toggle(ref, c)}
                   >
                     {estadoGlobal[ref]?.[c] ? "✔" : "—"}
